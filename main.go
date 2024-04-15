@@ -4,6 +4,7 @@ import (
 	"container/heap"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -39,6 +40,29 @@ func (pq *PriorityQueue) Pop() interface{} {
 	item := old[n-1]
 	*pq = old[0 : n-1]
 	return item
+}
+
+func readRow(board *[3][3]int, rowNum int) error {
+	var input string
+	fmt.Scanln(&input)
+	numbers, err := parseRow(input)
+	if err != nil {
+		return err
+	}
+	copy(board[rowNum][:], numbers[:]) // Convertendo a matriz em uma fatia antes de copiar
+	return nil
+}
+
+func parseRow(input string) ([3]int, error) {
+	var row [3]int
+	numbers := strings.Split(input, ",")
+	if len(numbers) != 3 {
+		return row, fmt.Errorf("invalid input: must contain 3 numbers separated by commas")
+	}
+	for i := 0; i < 3; i++ {
+		fmt.Sscanf(numbers[i], "%d", &row[i])
+	}
+	return row, nil
 }
 
 func HeuristicSimple(state *State) int {
@@ -116,11 +140,32 @@ func Expand(current *State) []*State {
 
 func main() {
 	var board [3][3]int
-	fmt.Println("Enter the 3x3 puzzle board (0 represents the empty space):")
+	fmt.Println("Enter the each row separatedly. 0 represents the empty space.")
+	fmt.Println("Enter the first row of the puzzle board, separate by commas (e.g., 1,2,3)")
+	if err := readRow(&board, 0); err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	fmt.Println("Enter the second row of the puzzle board:")
+	if err := readRow(&board, 1); err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	fmt.Println("Enter the third row of the puzzle board:")
+	if err := readRow(&board, 2); err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+
+	// Agora você tem o tabuleiro montado na matriz 'board'
+	fmt.Println("Board:")
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
-			fmt.Scan(&board[i][j])
+			fmt.Printf("%d ", board[i][j])
 		}
+		fmt.Println()
 	}
 
 	zeroX, zeroY := FindZero(board)
