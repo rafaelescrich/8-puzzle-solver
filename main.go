@@ -52,7 +52,7 @@ func readRow(board *[3][3]int, rowNum int) error {
 	if err != nil {
 		return err
 	}
-	copy(board[rowNum][:], numbers[:]) // Convertendo a matriz em uma fatia antes de copiar
+	copy(board[rowNum][:], numbers[:])
 	return nil
 }
 
@@ -66,6 +66,10 @@ func parseRow(input string) ([3]int, error) {
 		fmt.Sscanf(numbers[i], "%d", &row[i])
 	}
 	return row, nil
+}
+
+func HeuristicUniform(state *State) int {
+	return 0
 }
 
 func HeuristicSimple(state *State) int {
@@ -142,7 +146,7 @@ func Expand(current *State) []*State {
 
 func main() {
 	var board [3][3]int
-	fmt.Println("Enter the each row separatedly. 0 represents the empty space.")
+	fmt.Println("Enter the each row separately. 0 represents the empty space.")
 	fmt.Println("Enter the first row of the puzzle board, separate by commas (e.g., 1,2,3)")
 	if err := readRow(&board, 0); err != nil {
 		fmt.Println("Error:", err)
@@ -171,7 +175,7 @@ func main() {
 	}
 
 	if !Solvable(board, solution) {
-		log.Fatalf("Sem solução")
+		log.Fatalf("No solution")
 	}
 
 	zeroX, zeroY := FindZero(board)
@@ -193,7 +197,7 @@ func main() {
 	var heuristicFunc func(*State) int
 	switch choice {
 	case 1:
-		heuristicFunc = func(s *State) int { return 0 } // Uniform Cost Search
+		heuristicFunc = HeuristicUniform
 	case 2:
 		heuristicFunc = HeuristicSimple
 	case 3:
@@ -216,7 +220,7 @@ func main() {
 
 		fmt.Printf("Visiting node with heuristic %d and cost %d\n", current.heuristic, current.cost)
 
-		if current.heuristic == 0 { // Check if this is the goal state
+		if current.board == solution { // Check if this is the goal state
 			duration := time.Since(startTime)
 			fmt.Println("Solution path:")
 			printSolution(current)
