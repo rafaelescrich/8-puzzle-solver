@@ -3,6 +3,7 @@ package main
 import (
 	"container/heap"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -16,6 +17,8 @@ type State struct {
 	heuristic int
 	prev      *State
 }
+
+var solution = [3][3]int{{1, 2, 3}, {4, 5, 6}, {7, 8, 0}}
 
 type PriorityQueue []*State
 
@@ -66,11 +69,10 @@ func parseRow(input string) ([3]int, error) {
 }
 
 func HeuristicSimple(state *State) int {
-	target := [3][3]int{{1, 2, 3}, {4, 5, 6}, {7, 8, 0}}
 	count := 0
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
-			if state.board[i][j] != 0 && state.board[i][j] != target[i][j] {
+			if state.board[i][j] != 0 && state.board[i][j] != solution[i][j] {
 				count++
 			}
 		}
@@ -168,6 +170,10 @@ func main() {
 		fmt.Println()
 	}
 
+	if !Solvable(board, solution) {
+		log.Fatalf("Sem solução")
+	}
+
 	zeroX, zeroY := FindZero(board)
 	fmt.Printf("Zero found at (%d, %d)\n", zeroX, zeroY)
 
@@ -234,4 +240,39 @@ func printSolution(state *State) {
 		printSolution(state.prev)
 	}
 	fmt.Println(state.board)
+}
+
+// Solvable receives two boards and returns if the game is solvable
+func Solvable(board [3][3]int, goal [3][3]int) bool {
+	var invGoal int
+	var boardArray, goalArray [9]int
+
+	counter := 0
+
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			boardArray[counter] = board[i][j]
+			goalArray[counter] = goal[i][j]
+			counter++
+		}
+	}
+
+	fmt.Println(boardArray)
+
+	for i := range goalArray {
+		for j := i + 1; j < len(goal); j++ {
+			if goalArray[i] > goalArray[j] && goalArray[j] != 0 {
+				invGoal++
+			}
+		}
+	}
+	invBoard := 0
+	for i := range boardArray {
+		for j := i + 1; j < len(boardArray); j++ {
+			if boardArray[i] > boardArray[j] && boardArray[j] != 0 {
+				invBoard++
+			}
+		}
+	}
+	return invGoal%2 == invBoard%2
 }
