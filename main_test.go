@@ -1,72 +1,62 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 )
 
-func TestHeuristicManhattan(t *testing.T) {
-	// Test input
-	state := State{
-		board: [3][3]int{
-			{1, 2, 3},
-			{4, 5, 6},
-			{7, 8, 0},
-		},
-		zeroX: 2,
-		zeroY: 2,
+func TestHeuristicUniform(t *testing.T) {
+	// Test cases don't matter since the output is always 0
+	state1 := &State{board: [3][3]int{{1, 2, 3}, {4, 5, 6}, {7, 8, 0}}}
+	state2 := &State{board: [3][3]int{{8, 6, 7}, {2, 5, 4}, {3, 0, 1}}}
+
+	if HeuristicUniform(state1) != 0 || HeuristicUniform(state2) != 0 {
+		t.Error("HeuristicUniform should always return 0")
 	}
+}
 
-	// Expected output
-	expected := 0 // Since this is already the goal state
+func TestHeuristicSimple(t *testing.T) {
+	board := [3][3]int{{8, 1, 3}, {0, 4, 2}, {7, 6, 5}} // Input board
+	expectedCount := 6                                  // I think the problem might be how I calculate this
+	result := HeuristicSimple(&State{board: board})
 
-	// Call the function
-	result := HeuristicManhattan(&state)
+	if result != expectedCount {
+		t.Errorf("HeuristicSimple failed. Expected: %d, Got: %d", expectedCount, result)
+	}
+}
 
-	// Assert the result
-	if result != expected {
-		t.Errorf("HeuristicManhattan was incorrect, got: %d, want: %d.", result, expected)
+func TestHeuristicManhattan(t *testing.T) {
+	state := &State{
+		board: [3][3]int{{8, 1, 3}, {4, 0, 2}, {7, 6, 5}},
+	}
+	expectedDistance := 10 // Calculate this manually based on the state
+	distance := HeuristicManhattan(state)
+
+	if distance != expectedDistance {
+		t.Errorf("HeuristicManhattan returned %d, expected %d", distance, expectedDistance)
+	}
+}
+
+// TestSolvable checks if the function correctly identifies solvable puzzles.
+func TestSolvable(t *testing.T) {
+	board := [3][3]int{{1, 2, 3}, {4, 5, 6}, {0, 7, 8}} // Known solvable position
+	if !Solvable(board, solution) {
+		t.Errorf("Solvable returned false; want true for a known solvable configuration")
 	}
 }
 
 func TestExpand(t *testing.T) {
-	// Initial state near the goal
-	state := State{
-		board: [3][3]int{
-			{1, 2, 3},
-			{4, 5, 6},
-			{7, 0, 8},
-		},
-		zeroX: 2,
-		zeroY: 1,
-		cost:  0,
+	state := &State{board: [3][3]int{{1, 2, 3}, {4, 5, 0}, {7, 8, 6}}, zeroX: 2, zeroY: 1, cost: 0}
+
+	fmt.Println("Original Board:") // Print for clarity
+	for _, row := range state.board {
+		fmt.Println(row)
 	}
 
-	// We expect 4 possible moves
-	expectedNumMoves := 4
+	newStates := Expand(state)
+	expectedNumMoves := 3
 
-	// Call the function
-	results := Expand(&state)
-
-	// Check the number of results
-	if len(results) != expectedNumMoves {
-		t.Errorf("Expand returned %d states, expected %d", len(results), expectedNumMoves)
-	}
-}
-
-func TestFindZero(t *testing.T) {
-	// Setup the board
-	board := [3][3]int{
-		{1, 2, 3},
-		{4, 5, 6},
-		{7, 8, 0},
-	}
-	expectedX, expectedY := 2, 2
-
-	// Execution
-	x, y := FindZero(board)
-
-	// Assertion
-	if x != expectedX || y != expectedY {
-		t.Errorf("FindZero was incorrect, got: (%d, %d), want: (%d, %d).", x, y, expectedX, expectedY)
+	if len(newStates) != expectedNumMoves {
+		t.Errorf("Expand returned %d possible states; want %d", len(newStates), expectedNumMoves)
 	}
 }

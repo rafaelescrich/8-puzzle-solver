@@ -76,7 +76,8 @@ func HeuristicSimple(state *State) int {
 	count := 0
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
-			if state.board[i][j] != 0 && state.board[i][j] != solution[i][j] {
+			tile := state.board[i][j]
+			if tile != 0 && tile != solution[i][j] {
 				count++
 			}
 		}
@@ -96,10 +97,13 @@ func HeuristicManhattan(state *State) int {
 			value := state.board[i][j]
 			if value != 0 {
 				target := targetPos[value]
-				sum += abs(target[0]-i) + abs(target[1]-j)
+				dist := abs(target[0]-i) + abs(target[1]-j) // Print dist here
+				fmt.Printf("Tile %d Distance: %d\n", value, dist)
+				sum += dist
 			}
 		}
 	}
+	fmt.Printf("Total Manhattan Distance: %d\n", sum) // Print the total sum
 	return sum
 }
 
@@ -214,7 +218,7 @@ func main() {
 	nodesVisited := 0
 	startTime := time.Now()
 
-	for pq.Len() > 0 {
+	for pq.Len() != 0 {
 		current := heap.Pop(&pq).(*State)
 		nodesVisited++
 

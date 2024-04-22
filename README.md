@@ -31,9 +31,9 @@ You will be prompted to enter the 8-puzzle board configuration as a series of nu
 
 ```bash
 Enter the 3x3 puzzle board (0 represents the empty space):
-1 2 3
-4 5 6
-7 8 0
+5 2 8
+4 1 7
+0 3 6
 ```
 
 Next, choose the search algorithm:
